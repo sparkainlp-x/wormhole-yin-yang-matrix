@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wormhole-yin-yang-matrix"
+version = "0.3.0"
+description = "Yin and yang membranes linked by a wormhole inside the 3x3 arena matrix: validated crossings only, external observer records REPORTED, calibrator updates an assumed model only and can refuse."
+requires-python = ">=3.10"
+license = {text = "AGPL-3.0-only"}
+dependencies = [
+    # NumPy is required by the vendored membrane-arena-3x3 engine
+    # (vendored unchanged). No stdlib port: a port would change
+    # np.random.default_rng trajectories and break comparability
+    # with the arena's own measured numbers.
+    "numpy",
+]
+
+[tool.setuptools.packages.find]
+include = ["membrane_arena_3x3*", "wormhole*"]

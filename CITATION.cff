@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+title: wormhole-yin-yang-matrix
+message: >-
+  If you use this software, please cite it as below. The wormhole is a
+  declared coupling channel in a synthetic toy, not a physical claim.
+type: software
+authors:
+  - family-names: Brisson
+    given-names: Jean-François
+    orcid: https://orcid.org/0009-0000-9778-5374
+    affiliation: Spark AI NLP
+version: 0.3.0
+license: AGPL-3.0-only
+repository-code: https://github.com/sparkainlp-x/wormhole-yin-yang-matrix
+abstract: >-
+  Yin and yang membranes linked by a wormhole inside the 3x3
+  density-matrix arena: crossings carry a membrane's present
+  configuration as a per-cell convex mixture, gated by the receiving
+  engine's frozen guards, with an external observer recording REPORTED
+  outcomes and an external calibrator updating an assumed model only
+  or refusing. Mun Seok Lee is cited as inspiration only for the
+  Digital to Wave paradigm.
