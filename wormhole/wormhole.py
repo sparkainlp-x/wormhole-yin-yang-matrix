@@ -51,36 +51,72 @@ class Wormhole:
     def __init__(self, config: WormholeConfig | None = None):
         self.config = config or WormholeConfig()
 
-    def mix(self, dest_state, source_state):
-        """Per-cell convex mixture. Preserves density-matrix validity."""
-        alpha = self.config.coupling
-        return (1.0 - alpha) * dest_state + alpha * source_state
+    def mix(self, dest_state, source_state, source_black=None,
+            dest_white=None):
+        """Per-cell convex mixture. Preserves density-matrix validity.
 
-    def probe(self, source_engine, dest_engine, candidate=None):
+        ``source_black`` is a (3, 3) bool mask of black source cells:
+        masked cells keep the destination's own cell (nothing leaves
+        a black hole). ``dest_white`` is a (3, 3) bool mask of white
+        dest cells: masked cells keep the destination's own cell
+        (nothing enters a white hole). Both default to None (no
+        holes, v0.3.0 behavior). Masked cells stay valid because the
+        destination's own cell is itself a valid density matrix.
+        """
+        alpha = self.config.coupling
+        candidate = (1.0 - alpha) * dest_state + alpha * source_state
+        if source_black is not None:
+            candidate[source_black] = dest_state[source_black]
+        if dest_white is not None:
+            candidate[dest_white] = dest_state[dest_white]
+        return candidate
+
+    def _masks(self, source_holes, dest_holes):
+        """(source_black, dest_white) masks from HoleMaps (or None)."""
+        source_black = None
+        dest_white = None
+        if source_holes is not None and source_holes.black:
+            source_black = source_holes.source_mask()
+        if dest_holes is not None and dest_holes.white:
+            dest_white = dest_holes.dest_mask()
+        return source_black, dest_white
+
+    def probe(self, source_engine, dest_engine, candidate=None,
+              source_holes=None, dest_holes=None):
         """Validate a crossing WITHOUT committing. Returns (ok, reason).
 
-        ``candidate`` defaults to the mixed present states. Probes never
-        mutate either engine (validation is pure).
+        ``candidate`` defaults to the mixed present states (with hole
+        masks applied when HoleMaps are given). Probes never mutate
+        either engine (validation is pure).
         """
         if dest_engine.circuit_breaker:
             return False, "receiver_breaker_open"
         if candidate is None:
+            source_black, dest_white = self._masks(source_holes, dest_holes)
             candidate = self.mix(dest_engine.lattice.state,
-                                 source_engine.lattice.state)
+                                 source_engine.lattice.state,
+                                 source_black=source_black,
+                                 dest_white=dest_white)
         return dest_engine._validate(candidate)
 
-    def transmit(self, source_engine, dest_engine, direction, round_no):
+    def transmit(self, source_engine, dest_engine, direction, round_no,
+                 source_holes=None, dest_holes=None):
         """Attempt one crossing. Commits only a validated candidate.
 
         Returns a crossing record dict (direction, round, accepted,
         reason). Refused attempts leave the receiving state untouched.
+        Hole masks (when given) apply before validation, so a masked
+        candidate can still be refused by the frozen guards.
         """
         if dest_engine.circuit_breaker:
             record = {"direction": direction, "round": round_no,
                       "accepted": False, "reason": "receiver_breaker_open"}
             return record
+        source_black, dest_white = self._masks(source_holes, dest_holes)
         candidate = self.mix(dest_engine.lattice.state,
-                             source_engine.lattice.state)
+                             source_engine.lattice.state,
+                             source_black=source_black,
+                             dest_white=dest_white)
         ok, reason = dest_engine._validate(candidate)
         if ok:
             dest_engine.lattice.commit(candidate)

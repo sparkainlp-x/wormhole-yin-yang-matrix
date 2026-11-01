@@ -22,6 +22,7 @@ from __future__ import annotations
 
 from membrane_arena_3x3.engine import EngineConfig, MembraneArena3x3
 
+from .holes import HoleMap
 from .wormhole import Wormhole, WormholeConfig
 
 
@@ -29,13 +30,19 @@ class YinYangPair:
     """Two arena membranes + one wormhole + an assumed model."""
 
     def __init__(self, yin_seed=42, yang_seed=137, coupling=0.5, steps=200,
-                 crossing_order="yin-first"):
+                 crossing_order="yin-first", yin_holes=None, yang_holes=None):
         if crossing_order not in ("yin-first", "yang-first"):
             raise ValueError(
                 "crossing_order must be 'yin-first' or 'yang-first'")
+        if yin_holes is not None and not isinstance(yin_holes, HoleMap):
+            raise ValueError("yin_holes must be a HoleMap or None")
+        if yang_holes is not None and not isinstance(yang_holes, HoleMap):
+            raise ValueError("yang_holes must be a HoleMap or None")
         self.yin_seed = int(yin_seed)
         self.yang_seed = int(yang_seed)
         self.crossing_order = crossing_order
+        self.yin_holes = yin_holes
+        self.yang_holes = yang_holes
         self.yin = MembraneArena3x3(
             EngineConfig(steps=int(steps), seed=self.yin_seed))
         self.yang = MembraneArena3x3(
@@ -58,12 +65,16 @@ class YinYangPair:
         self.gates["review_signoff"] = bool(value)
 
     def frozen_gate(self):
-        """Frozen guards + coupling + crossing order (read-only view)."""
+        """Frozen guards + coupling + crossing order + holes (read-only)."""
         probe = MembraneArena3x3(EngineConfig(steps=200, seed=42))
         return {
             "guards": dict(probe.config.guards_dict()),
             "coupling": self.wormhole.config.coupling,
             "crossing_order": self.crossing_order,
+            "yin_holes": (self.yin_holes.cells() if self.yin_holes else
+                          {"black": [], "white": []}),
+            "yang_holes": (self.yang_holes.cells() if self.yang_holes else
+                           {"black": [], "white": []}),
         }
 
     def public_state(self):
@@ -88,15 +99,18 @@ class YinYangPair:
         if not self.yang.circuit_breaker:
             self.yang.step()
         if with_wormhole:
-            order = (("yin->yang", self.yin, self.yang),
-                     ("yang->yin", self.yang, self.yin))
+            order = (("yin->yang", self.yin, self.yang,
+                      self.yin_holes, self.yang_holes),
+                     ("yang->yin", self.yang, self.yin,
+                      self.yang_holes, self.yin_holes))
             if self.crossing_order == "yang-first":
                 order = order[::-1]
-            for direction, source, dest in order:
+            for direction, source, dest, src_holes, dst_holes in order:
                 if hooks is not None:
                     hooks.before_crossing(direction, self.rounds_run + 1)
                 record = self.wormhole.transmit(
-                    source, dest, direction, self.rounds_run + 1)
+                    source, dest, direction, self.rounds_run + 1,
+                    source_holes=src_holes, dest_holes=dst_holes)
                 self.crossings.append(record)
                 if hooks is not None:
                     hooks.after_crossing(record)
@@ -138,4 +152,8 @@ class YinYangPair:
             "crossings_breaker_closed": (
                 len(self.crossings) - len(guard_crossings)),
             "crossings": list(self.crossings),
+            "yin_holes": (self.yin_holes.cells() if self.yin_holes else
+                          {"black": [], "white": []}),
+            "yang_holes": (self.yang_holes.cells() if self.yang_holes else
+                           {"black": [], "white": []}),
         }

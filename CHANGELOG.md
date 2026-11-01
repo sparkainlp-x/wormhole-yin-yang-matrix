@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.4.0 (2026-10-31)
+
+- Black-hole and white-hole cells on the wormhole (HoleMap): a black
+  cell is a sink (nothing leaves it through the wormhole, it still
+  receives), a white cell is a source (nothing enters it through the
+  wormhole, it still emits). Holes mask crossing contributions only;
+  each engine's own step is untouched, frozen guards still decide
+  every crossing, and empty maps reproduce v0.3.0 exactly (pinned by
+  test). The names are an analogy for one-way crossing rules in this
+  classical toy, NOT astrophysical black/white holes: no event
+  horizon, singularity, curvature, or Hawking radiation is modelled.
+  See README for the measured bars.
+
+
 ## v0.3.0 (2026-10-31)
 
 - Bifurcation symmetry: crossing-order flag (yin-first default,

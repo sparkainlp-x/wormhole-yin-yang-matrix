@@ -1,4 +1,4 @@
-# wormhole-yin-yang-matrix v0.1.0
+# wormhole-yin-yang-matrix v0.4.0
 
 Yin and yang membranes linked by a wormhole inside the 3x3 arena
 matrix. The wormhole carries a membrane's PRESENT configuration to
@@ -160,15 +160,60 @@ yang s+1000, s in 0-19):
   under both orders (10/5 vs 9/4 steps) yet converges fully
   (distance 0.497 -> 0.000) — convergence is not runaway.
 
+## Black holes and white holes (v0.4.0)
+
+One-way crossing rules, added as a `HoleMap` per engine. The names
+are an analogy, not astrophysics: no event horizon, singularity,
+curvature, or Hawking radiation is modelled, and no claim about real
+black or white holes is made.
+
+- A BLACK cell is a sink: nothing leaves it through the wormhole
+  (its contribution to an outgoing crossing is zeroed; the
+  destination keeps its own cell there). It still RECEIVES normally,
+  subject to the frozen guards: a sink absorbs.
+- A WHITE cell is a source: nothing enters it through the wormhole
+  (an incoming contribution to it is zeroed; the destination keeps
+  its own cell there). It still EMITS normally: a source only gives.
+- Holes mask crossing contributions only. Each engine's own step is
+  untouched, frozen guards still decide every crossing, and a refused
+  crossing still commits nothing. A cell cannot be both black and
+  white; off-grid cells are rejected. Empty maps reproduce v0.3.0
+  exactly (pinned by test).
+
+Measured by demo_holes.py:
+
+- Part 1 (mechanism trace, headline pair 42/137, coupling 0.5):
+  per-cell ||candidate - dest|| for a yin -> yang crossing. Plain:
+  every cell moves by about 0.12. With a black hole on yin at
+  (1, 1), or a white hole on yang at (1, 1), the (1, 1) cell reads
+  exactly 0.0000 and every other cell is unchanged.
+- Part 2 (fate-at-50 proxy, 10 pairs s in 0-9, coupling 0.5,
+  yin-first; control-like / yin-runaway / yang-runaway): no holes
+  6/2/2, mean final distance 0.006; black on yin (1, 1) 7/2/1,
+  mean 0.027; white on yang (1, 1) 7/2/1, mean 0.027. No
+  both-runaway anywhere. One yang-runaway pair turns control-like
+  under either hole; yin-runaway is unchanged. Small sample (10
+  pairs): read this as a measured hint, not a law.
+- The two single-hole conditions agree EXACTLY here, and that is
+  structural, not coincidence: each masks the same (1, 1) cell of
+  the yin -> yang candidate, and neither masks the yang -> yin
+  candidate at all (black blocks only leaving, white blocks only
+  entering). Identical crossings give identical trajectories.
+  Holes slightly slow convergence (mean final distance 0.006 ->
+  0.027): one masked cell per direction keeps the membranes a
+  little more distinct.
+
 ## Run it
 
 ```sh
 python3 demo.py            # bar 1, bar 2, calibrator scenarios, coupling sensitivity
 python3 demo_crystallize.py  # bars C1-C3 (4 pairs, first 20 events each)
 python3 demo_bifurcation.py  # Q1 order test + Q2/Q3 alpha sweep (tens of minutes)
+python3 demo_holes.py      # hole trace + fate-at-50 with black/white holes (minutes)
 python3 tests/tests.py     # 11 tests, from the package root
 python3 tests/test_crystallize.py  # 5 tests, from the package root
 python3 tests/test_bifurcation.py  # 6 tests, from the package root
+python3 tests/test_holes.py  # 13 tests, from the package root
 ```
 
 Tests pin the mechanism (refused crossings commit nothing, accepted
@@ -176,9 +221,12 @@ crossings commit validated mixtures, observer non-mutation,
 determinism, frozen gate, gate-path agreement, calibrator gate
 logic, vendored bytes, NumPy declaration; crystallize arithmetic,
 per-direction adaptive history, ledger non-interference, replication
-determinism, score arithmetic). Full bar 1 (21 pairs) and bar 2
-(100 probe pairs) numbers are measured by demo.py and reported
-above, not re-run in the tests, so the suite stays fast.
+determinism, score arithmetic; hole validation, mask placement,
+black-receives / white-emits, guard refusal with holes, holes inert
+without the wormhole, empty maps reproducing v0.3.0). Full bar 1
+(21 pairs) and bar 2 (100 probe pairs) numbers are measured by
+demo.py and reported above, not re-run in the tests, so the suite
+stays fast.
 
 ## Honest limits
 
