@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.5.0 (2026-10-31)
+
+- Triangle hole patterns: the three corners (0, 0), (0, 2), (2, 0)
+  as a HoleMap, black or white, on either or both engines. A right
+  isosceles triangle (legs 2 and 2, area 2); no 3-cell triangle on
+  this grid can be equilateral (no equilateral triangle has all
+  vertices on integer lattice points). Black-triangle-on-yin and
+  white-triangle-on-yang run identically by structure (same
+  candidate cells masked, pinned by test). Measured by
+  demo_triangles.py: trace cells exactly 0.0000, others unchanged;
+  fate-at-50 (10 pairs, 0.5) no holes 6/2/2, one-direction triangle
+  9/1/0, both-directions triangle 8/2/0 with mean final distance
+  0.313 (convergence much slower). See README for the numbers.
+
 ## v0.4.0 (2026-10-31)
 
 - Black-hole and white-hole cells on the wormhole (HoleMap): a black
