@@ -1,4 +1,4 @@
-# wormhole-yin-yang-matrix v0.4.0
+# wormhole-yin-yang-matrix v0.5.0
 
 Yin and yang membranes linked by a wormhole inside the 3x3 arena
 matrix. The wormhole carries a membrane's PRESENT configuration to
@@ -203,6 +203,45 @@ Measured by demo_holes.py:
   0.027): one masked cell per direction keeps the membranes a
   little more distinct.
 
+## Triangle hole patterns (v0.5.0)
+
+Three hole cells forming a triangle, plugged into the v0.4.0
+HoleMap. The triangle is the three corners (0, 0), (0, 2), (2, 0):
+a right isosceles triangle (legs 2 and 2, hypotenuse 2*sqrt(2),
+area 2). The choice among corner triples is immaterial up to
+square symmetry: the D4 symmetries of the square map any three
+corners to any other three. It is NOT equilateral, and no 3-cell
+triangle on this grid can be: no equilateral triangle has all
+three vertices on integer lattice points (its area would be
+irrational, against Pick's theorem). The Tesla 3-6-9 triangle is
+equilateral on the 9-gon of digits, a different diagram.
+
+Measured by demo_triangles.py:
+
+- Part 1 (mechanism trace, headline pair 42/137, coupling 0.5):
+  per-cell ||candidate - dest|| for a yin -> yang crossing. Plain:
+  every cell moves by about 0.12. With the black triangle on yin,
+  or the white triangle on yang, the three triangle cells read
+  exactly 0.0000 and every other cell is unchanged. The two masked
+  tables are identical, cell for cell.
+- Part 2 (fate-at-50 proxy, 10 pairs s in 0-9, coupling 0.5,
+  yin-first; control-like / yin-runaway / yang-runaway): no holes
+  6/2/2, mean final distance 0.006; black triangle on yin 9/1/0,
+  mean 0.060; white triangle on yang 9/1/0, mean 0.060; black
+  triangle on BOTH engines (both crossing directions masked)
+  8/2/0, mean 0.313. No both-runaway anywhere.
+- The black-on-yin and white-on-yang conditions agree EXACTLY, as
+  predicted structurally before the run: each masks the same three
+  cells of the yin -> yang candidate and neither masks the
+  yang -> yin candidate at all, so the two runs are identical
+  crossing for crossing (pinned by test, not just on fate counts).
+  One masked direction pushes more pairs control-like (6 -> 9)
+  while slowing convergence a little (0.006 -> 0.060). Masking both
+  directions slows convergence a lot (0.313): a third of every
+  crossing blocked each way keeps the membranes much more
+  distinct, while fate counts stay near control (8/2/0). Small
+  sample (10 pairs): read this as a measured hint, not a law.
+
 ## Run it
 
 ```sh
@@ -210,10 +249,12 @@ python3 demo.py            # bar 1, bar 2, calibrator scenarios, coupling sensit
 python3 demo_crystallize.py  # bars C1-C3 (4 pairs, first 20 events each)
 python3 demo_bifurcation.py  # Q1 order test + Q2/Q3 alpha sweep (tens of minutes)
 python3 demo_holes.py      # hole trace + fate-at-50 with black/white holes (minutes)
+python3 demo_triangles.py  # triangle trace + fate-at-50 (minutes)
 python3 tests/tests.py     # 11 tests, from the package root
 python3 tests/test_crystallize.py  # 5 tests, from the package root
 python3 tests/test_bifurcation.py  # 6 tests, from the package root
 python3 tests/test_holes.py  # 13 tests, from the package root
+python3 tests/test_triangles.py  # 9 tests, from the package root
 ```
 
 Tests pin the mechanism (refused crossings commit nothing, accepted
@@ -223,10 +264,12 @@ logic, vendored bytes, NumPy declaration; crystallize arithmetic,
 per-direction adaptive history, ledger non-interference, replication
 determinism, score arithmetic; hole validation, mask placement,
 black-receives / white-emits, guard refusal with holes, holes inert
-without the wormhole, empty maps reproducing v0.3.0). Full bar 1
-(21 pairs) and bar 2 (100 probe pairs) numbers are measured by
-demo.py and reported above, not re-run in the tests, so the suite
-stays fast.
+without the wormhole, empty maps reproducing v0.3.0; triangle
+geometry, triangle masks, the black-on-yin == white-on-yang
+identity, both-directions masking, triangle summary reporting).
+Full bar 1 (21 pairs) and bar 2 (100 probe pairs) numbers are
+measured by demo.py and reported above, not re-run in the tests,
+so the suite stays fast.
 
 ## Honest limits
 

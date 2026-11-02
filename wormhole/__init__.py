@@ -10,6 +10,8 @@ from .crystallize import (COST_PER_REPLICATION, FIRST_COMMIT,
 from .holes import HoleMap
 from .observer import Report, WormholeObserver, binom_half_width, half_width
 from .pair import YinYangPair
+from .triangles import (TRIANGLE_CELLS, is_triangle, triangle_area2,
+                        triangle_black, triangle_white)
 from .wormhole import Wormhole, WormholeConfig
 
 __all__ = ["YinYangPair", "Wormhole", "WormholeConfig", "WormholeObserver",
@@ -18,5 +20,7 @@ __all__ = ["YinYangPair", "Wormhole", "WormholeConfig", "WormholeObserver",
            "CrystallizeLedger", "CrystallizeEvent", "brier", "revise",
            "run_crystallize_pairs", "FIRST_COMMIT", "COST_PER_REPLICATION",
            "state_distance", "classify_fate", "acceptance_asymmetry",
-           "sweep_pair", "order_test", "alpha_sweep", "HoleMap"]
-__version__ = "0.4.0"
+           "sweep_pair", "order_test", "alpha_sweep", "HoleMap",
+           "TRIANGLE_CELLS", "is_triangle", "triangle_area2",
+           "triangle_black", "triangle_white"]
+__version__ = "0.5.0"

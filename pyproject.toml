@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "wormhole-yin-yang-matrix"
-version = "0.4.0"
+version = "0.5.0"
 description = "Yin and yang membranes linked by a wormhole inside the 3x3 arena matrix: validated crossings only, external observer records REPORTED, calibrator updates an assumed model only and can refuse."
 requires-python = ">=3.10"
 license = {text = "AGPL-3.0-only"}
